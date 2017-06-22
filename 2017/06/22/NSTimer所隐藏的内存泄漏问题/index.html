@@ -93,12 +93,16 @@
 
 
 
-<meta property="og:type" content="website">
-<meta property="og:title" content="iewaduhz">
-<meta property="og:url" content="http://yoursite.com/index.html">
+<meta name="description" content="日常的编码工作中，经常会碰到某些需要定期或延时执行的操作，这个时候会有多种计时方法供我们使用，比如NSTimer、CADisplayLink、GCD等。前两种方式在使用中都可能会出现循环引用而导致内存泄漏问题。  what我们先来看一下，NSTimer所隐藏的内存泄漏问题是什么样子的，通常，在push出来的viewController中我们是这样做的： 123456789101112131415">
+<meta property="og:type" content="article">
+<meta property="og:title" content="NSTimer所隐藏的内存泄漏问题">
+<meta property="og:url" content="http://yoursite.com/2017/06/22/NSTimer所隐藏的内存泄漏问题/index.html">
 <meta property="og:site_name" content="iewaduhz">
+<meta property="og:description" content="日常的编码工作中，经常会碰到某些需要定期或延时执行的操作，这个时候会有多种计时方法供我们使用，比如NSTimer、CADisplayLink、GCD等。前两种方式在使用中都可能会出现循环引用而导致内存泄漏问题。  what我们先来看一下，NSTimer所隐藏的内存泄漏问题是什么样子的，通常，在push出来的viewController中我们是这样做的： 123456789101112131415">
+<meta property="og:updated_time" content="2017-06-22T04:58:06.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="iewaduhz">
+<meta name="twitter:title" content="NSTimer所隐藏的内存泄漏问题">
+<meta name="twitter:description" content="日常的编码工作中，经常会碰到某些需要定期或延时执行的操作，这个时候会有多种计时方法供我们使用，比如NSTimer、CADisplayLink、GCD等。前两种方式在使用中都可能会出现循环引用而导致内存泄漏问题。  what我们先来看一下，NSTimer所隐藏的内存泄漏问题是什么样子的，通常，在push出来的viewController中我们是这样做的： 123456789101112131415">
 
 
 
@@ -126,13 +130,13 @@
 
 
 
-  <link rel="canonical" href="http://yoursite.com/"/>
+  <link rel="canonical" href="http://yoursite.com/2017/06/22/NSTimer所隐藏的内存泄漏问题/"/>
 
 
 
 
 
-  <title>iewaduhz</title>
+  <title>NSTimer所隐藏的内存泄漏问题 | iewaduhz</title>
   
 
 
@@ -157,9 +161,7 @@
     
   
 
-  <div class="container sidebar-position-left 
-   page-home 
- ">
+  <div class="container sidebar-position-left page-post-detail ">
     <div class="headband"></div>
 
     <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
@@ -242,9 +244,9 @@
         <div class="content-wrap">
           <div id="content" class="content">
             
-  <section id="posts" class="posts-expand">
+
+  <div id="posts" class="posts-expand">
     
-      
 
   
 
@@ -270,9 +272,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2017/06/22/NSTimer所隐藏的内存泄漏问题/" itemprop="url">NSTimer所隐藏的内存泄漏问题</a></h1>
+          <h1 class="post-title" itemprop="name headline">NSTimer所隐藏的内存泄漏问题</h1>
         
 
         <div class="post-meta">
@@ -319,9 +319,7 @@
       
 
       
-        
-          
-            <blockquote>
+        <blockquote>
 <p>日常的编码工作中，经常会碰到某些需要定期或延时执行的操作，这个时候会有多种计时方法供我们使用，比如NSTimer、CADisplayLink、GCD等。前两种方式在使用中都可能会出现循环引用而导致内存泄漏问题。</p>
 </blockquote>
 <h2 id="what"><a href="#what" class="headerlink" title="what"></a>what</h2><p>我们先来看一下，NSTimer所隐藏的内存泄漏问题是什么样子的，通常，在push出来的viewController中我们是这样做的：</p>
@@ -347,20 +345,27 @@
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div></pre></td><td class="code"><pre><div class="line">#import &quot;DWTimer.h&quot;</div><div class="line"></div><div class="line">@interface DWTimerTarget : NSObject</div><div class="line">@property (nonatomic, weak) id target;</div><div class="line">@property (nonatomic, assign) SEL selector;</div><div class="line">@property (nonatomic, weak) NSTimer* timer;</div><div class="line">@end</div><div class="line"></div><div class="line">@implementation DWTimerTarget</div><div class="line"></div><div class="line">- (void) fire:(NSTimer *)timer &#123;</div><div class="line">    if(self.target) &#123;</div><div class="line">        [self.target performSelector:self.selector withObject:timer.userInfo afterDelay:0.0f];</div><div class="line">    &#125; else &#123;</div><div class="line">        [self.timer invalidate];</div><div class="line">    &#125;</div><div class="line">&#125;</div><div class="line"></div><div class="line">@end</div><div class="line"></div><div class="line">@implementation DWTimer</div><div class="line"></div><div class="line">+ (NSTimer *) scheduledTimerWithTimeInterval:(NSTimeInterval)interval</div><div class="line">                                      target:(id)aTarget</div><div class="line">                                    selector:(SEL)aSelector</div><div class="line">                                    userInfo:(id)userInfo</div><div class="line">                                     repeats:(BOOL)repeats &#123;</div><div class="line">    DWTimerTarget* timerTarget = [[DWTimerTarget alloc] init];</div><div class="line">    timerTarget.target = aTarget;</div><div class="line">    timerTarget.selector = aSelector;</div><div class="line">    timerTarget.timer = [NSTimer scheduledTimerWithTimeInterval:interval</div><div class="line">                                                         target:timerTarget</div><div class="line">                                                       selector:@selector(fire:)</div><div class="line">                                                       userInfo:userInfo</div><div class="line">                                                        repeats:repeats];</div><div class="line">    return timerTarget.timer;</div><div class="line">&#125;</div><div class="line"></div><div class="line">@end</div></pre></td></tr></table></figure>
 <p>如此，基本实现了我们的目标：通过弱引用传入的target对象，彻底解决了NSTImer所隐藏的内存泄漏问题。CADisplayLink和NSTimer的问题基本一致，就不在赘述，也可以利用上述方法解决问题。</p>
 
-          
+      
+    </div>
+
+    <div>
+      
         
+
       
     </div>
 
     <div>
       
-    </div>
+        
 
-    <div>
       
     </div>
 
     <div>
+      
+        
+
       
     </div>
 
@@ -368,21 +373,22 @@
       
 
       
+      
+      
 
       
 
       
-      
-        <div class="post-eof"></div>
       
     </footer>
   </article>
 
 
-    
-  </section>
 
-  
+    <div class="post-spread">
+      
+    </div>
+  </div>
 
 
           </div>
@@ -390,6 +396,10 @@
 
 
           
+  <div class="comments" id="comments">
+    
+  </div>
+
 
         </div>
         
@@ -409,8 +419,17 @@
       
 
       
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
 
-      <section class="site-overview sidebar-panel sidebar-panel-active">
+      <section class="site-overview sidebar-panel">
         <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
           <img class="site-author-image" itemprop="image"
                src="/images/avatar.gif"
@@ -454,6 +473,22 @@
 
       </section>
 
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#what"><span class="nav-number">1.</span> <span class="nav-text">what</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#why"><span class="nav-number">2.</span> <span class="nav-text">why</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#how"><span class="nav-number">3.</span> <span class="nav-text">how</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#第一种方案"><span class="nav-number">3.1.</span> <span class="nav-text">第一种方案</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#第二种方案"><span class="nav-number">3.2.</span> <span class="nav-text">第二种方案</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
       
 
       
@@ -567,10 +602,10 @@
   
 
   
-    <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.1"></script>
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.1"></script>
 <script type="text/javascript" src="/js/src/post-details.js?v=5.1.1"></script>
 
-  
+
 
   
 
