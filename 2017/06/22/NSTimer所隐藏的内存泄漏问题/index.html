@@ -99,7 +99,7 @@
 <meta property="og:url" content="http://yoursite.com/2017/06/22/NSTimer所隐藏的内存泄漏问题/index.html">
 <meta property="og:site_name" content="iewaduhz">
 <meta property="og:description" content="日常的编码工作中，经常会碰到某些需要定期或延时执行的操作，这个时候会有多种计时方法供我们使用，比如NSTimer、CADisplayLink、GCD等。前两种方式在使用中都可能会出现循环引用而导致内存泄漏问题。  what我们先来看一下，NSTimer所隐藏的内存泄漏问题是什么样子的，通常，在push出来的viewController中我们是这样做的： 123456789101112131415">
-<meta property="og:updated_time" content="2017-06-22T05:16:39.000Z">
+<meta property="og:updated_time" content="2017-06-22T05:19:38.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="NSTimer所隐藏的内存泄漏问题">
 <meta name="twitter:description" content="日常的编码工作中，经常会碰到某些需要定期或延时执行的操作，这个时候会有多种计时方法供我们使用，比如NSTimer、CADisplayLink、GCD等。前两种方式在使用中都可能会出现循环引用而导致内存泄漏问题。  what我们先来看一下，NSTimer所隐藏的内存泄漏问题是什么样子的，通常，在push出来的viewController中我们是这样做的： 123456789101112131415">
@@ -329,8 +329,7 @@
 <blockquote>
 <p><code>[NSTimer scheduledTimerWithTimeInterval:1.0 target:self selector:@selector(timeStart) userInfo:nil repeats:YES];</code></p>
 </blockquote>
-<p>在这个方法中，如果repeats传入的参数是YES，那么NSTimer对象会保留target传入的对象，也就是强持有它，这种情形会保持到NSTimer对象失效为止。如果是一次性的定时器，不需要手动去invalidate就会失效，但是重复性的定时器，需要主动去调用invalidate方法才会失效。</p>
-<p>综上看来，viewController强持有了NSTimer对象，而NSTimer对象在其<code>[NSTimer scheduledTimerWithTimeInterval:1.0 target:self selector:@selector(timeStart) userInfo:nil repeats:YES];</code>方法中对传入的target参数也进行了强引用，这也保证了NSTimer对象调用时的正确性。此时如果传入target的是self，那么就会形成viewController和NSTimer对象的循环引用环，如果循环引用环没有被打破，那么viewController在弹栈的时候就不会被释放，也就不会走dealloc方法，也就不会将NSTimer对象invalidate，这个时候viewController和NSTimer对象都得不到释放，也就产生了内存泄漏。</p>
+<p>在这个方法中，如果repeats传入的参数是YES，那么NSTimer对象会保留target传入的对象，也就是强持有它，这种情形会保持到NSTimer对象失效为止。如果是一次性的定时器，不需要手动去invalidate就会失效，但是重复性的定时器，需要主动去调用invalidate方法才会失效。<br>综上看来，viewController强持有了NSTimer对象，而NSTimer对象在其<code>[NSTimer scheduledTimerWithTimeInterval:1.0 target:self selector:@selector(timeStart) userInfo:nil repeats:YES];</code>方法中对传入的target参数也进行了强引用，这也保证了NSTimer对象调用时的正确性。此时如果传入target的是self，那么就会形成viewController和NSTimer对象的循环引用环，如果循环引用环没有被打破，那么viewController在弹栈的时候就不会被释放，也就不会走dealloc方法，也就不会将NSTimer对象invalidate，这个时候viewController和NSTimer对象都得不到释放，也就产生了内存泄漏。</p>
 <h2 id="how"><a href="#how" class="headerlink" title="how"></a>how</h2><p>如何才能解决这种内存泄漏问题呢，关键在于破掉viewController和NSTimer对象的循环引用环。此时可能会有两种思路：<br>　　1、viewCOntroller弱引用NSTimer对象<br>　　2、NSTimer对象弱引用传入target的self对象  </p>
 <h3 id="第一种方案"><a href="#第一种方案" class="headerlink" title="第一种方案"></a>第一种方案</h3><p>我们首先采用第一种方法<code>@property (nonatomic, weak) NSTimer *timer;</code>，运行程序后发现在viewController弹栈后依然在打印“timeStart”，这是因为NSTimer对象被创建后会被加入到RunLoop中，会被RunLoop强持有，这种思路是不能解决问题的。 </p>
 <h3 id="第二种方案"><a href="#第二种方案" class="headerlink" title="第二种方案"></a>第二种方案</h3><p>在第二种方法中,我们做如下处理  </p>
